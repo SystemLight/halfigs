@@ -1,0 +1,37 @@
+os: linux
+language: node_js
+node_js:
+  - '10'
+branches:
+  except:
+    - dev
+stages:
+  - name: halfigs
+  - name: test
+jobs:
+  include:
+    - stage: test
+      name: "test-1"
+      env:
+        - GITHUB=https://github.com/SystemLight/halfigs
+      script:
+        - echo i am test-1
+    - stage: test
+      name: "test-2"
+      env:
+        - GITHUB=https://github.com/SystemLight/halfigs
+      script:
+        - echo i am test-2
+    - stage: halfigs
+      name: "halfigs-1"
+      env:
+        - GITHUB=https://github.com/SystemLight/halfigs
+      before_deploy:
+        - echo before_deploy
+      deploy:
+        provider: npm
+        email: 1466335092@qq.com
+        skip_cleanup: true
+        api_key: "$NPM_TOKEN"
+        on:
+          tags: true
