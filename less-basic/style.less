@@ -1,0 +1,26 @@
+#hd {
+  .test-rect() {
+    display: block;
+    background: olivedrab;
+  }
+
+  .test-rect(@w,@h) {
+    width: @w;
+    height: @h;
+    .test-rect();
+  }
+
+  .test-rect(@size) {
+    .test-rect(@size, @size);
+  }
+
+  .text-middle(@height) {
+    height: @height;
+    line-height: @height;
+  }
+
+  .text-center(@size) {
+    font-size: @size;
+    text-align: center;
+  }
+}

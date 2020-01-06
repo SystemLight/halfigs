@@ -1,0 +1,22 @@
+{
+  "name": "halfigs",
+  "version": "0.0.1",
+  "description": "Halfigs is a front-end utility kit.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"no test specified\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SystemLight/halfigs.git"
+  },
+  "keywords": [
+    "halfigs"
+  ],
+  "author": "SystemLight",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SystemLight/halfigs/issues"
+  },
+  "homepage": "https://github.com/SystemLight/halfigs#readme"
+}

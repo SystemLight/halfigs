@@ -1,0 +1,79 @@
+mixin meta(key,desc)
+    meta(name="keywords" content=key)
+    meta(name="description" content=desc)
+
+mixin icon(href)
+    link(rel="shortcut icon" href=href)
+    link(rel="bookmark" type="image/x-icon" href=href)
+
+mixin css(href)
+    link(rel="stylesheet" type="text/css" href=href)
+
+mixin js(href)
+    script(type="application/javascript" src=href)
+
+
+doctype html
+html(lang="zh")
+    head
+        //- path:@@@路径设置口+页面标题
+        block title
+            title= "softdoor"
+
+        //- --path:@@@路径设置口+属性
+        meta(charset="utf-8")
+        meta(http-equiv="Content-Type" content="text/html; charset=utf-8")
+        meta(name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,user-scalable=1")
+        meta(name="robots" content="all")
+        meta(name="author" content="SystemLight")
+
+        //- path:@@@路径设置口+拓展meta属性
+        block meta
+            +meta("hardoor","描述内容")
+
+        //- path:@@@路径设置口+图标
+        block icon
+
+        //- path:@@@路径设置口+样式引入
+        block css
+
+        //- path:@@@路径设置口+样式嵌入
+        block style
+            style.
+
+        //- path:@@@路径设置口+头部其它内容
+        block header_other
+
+    body
+        //- path:@@@页面区域+包裹[#wrap]
+        div#wrap
+
+            //- path:@@@页面区域+wrap之前内容
+            block wrap_before
+
+            //- path:@@@页面区域+头部[#header]
+            header#header
+                block header
+
+            //- path:@@@页面区域+主体[#main]
+            section#main
+                block main
+
+            //- path:@@@页面区域+底部[#footer]
+            footer#footer
+                block footer
+
+            //- path:@@@页面区域+wrap之后内容
+            block wrap_after
+
+        //- path:@@@页面区域+拓展[#aside]
+        aside#aside
+            block aside
+
+        //- path:@@@路径设置口+脚本
+        block js
+            script(src="")
+
+        //- path:@@@路径设置口+脚本拓展
+        block script
+            script.
