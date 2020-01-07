@@ -27,9 +27,4 @@ You can read [halfigs Documentation](https://github.com/SystemLight/halfigs) onl
 
 # License
 
-<<<<<<< HEAD
-hardoor uses the MIT license, see LICENSE file for the details.
-=======
 halfigs uses the MIT license, see LICENSE file for the details.
->>>>>>> origin/master
-
