@@ -4,7 +4,7 @@ node_js:
   - '10'
 branches:
   except:
-    - dev
+    - hotfix
 stages:
   - name: halfigs
   - name: test
