@@ -1,9 +1,9 @@
-# halfigs
+# Halfigs
 
 [![NPM version](https://img.shields.io/npm/v/halfigs.svg)](https://www.npmjs.com/package/halfigs)
 [![Build Status](https://travis-ci.org/SystemLight/halfigs.svg?branch=master)](https://travis-ci.org/SystemLight/halfigs)
 
-Halfigs is a front-end utility kit.   
+Halfigs allows you to delete, copy or create folders directly.  
 NPM page: https://www.npmjs.com/package/halfigs
 
 # Installation
@@ -14,7 +14,22 @@ npm install halfigs
 
 # User Guide
 ```
-Too lazy to say
+const {copy, remove, create, info} = require("halfigs");
+
+
+copy.cp("./index.html", "./a/b/index.html").then(result => {
+    console.log("cp", result);
+    return remove.rm("./a");
+}).then(result => {
+    console.log("rm", result);
+});
+
+create.createNestedFile("./k/b/c/index.txt", "hello,file").then(result => {
+    console.log("createNestedFile", result);
+    return info.exists("./k/b/c/index.txt");
+}).then(result => {
+    console.log("exists", result);
+});
 ```
 
 # Note
@@ -23,7 +38,7 @@ Too lazy to say
 
 # Resources
 
-You can read [halfigs Documentation](https://github.com/SystemLight/halfigs) online for more information.
+You can read [halfigs Documentation](https://github.com/SystemLight/halfigs/wiki/API-Document) online for more information.
 
 # License
 

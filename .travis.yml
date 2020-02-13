@@ -26,6 +26,12 @@ jobs:
       name: "halfigs-1"
       env:
         - GITHUB=https://github.com/SystemLight/halfigs
+      install:
+        - echo install
+        - npm install
+      script:
+        - echo build
+        - npm run build
       before_deploy:
         - echo before_deploy
       deploy:

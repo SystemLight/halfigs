@@ -1,22 +1,63 @@
 {
   "name": "halfigs",
   "version": "0.0.7",
-  "description": "Halfigs is a front-end utility kit.",
-  "main": "index.js",
+  "description": "Halfigs allows you to delete, copy or create folders directly.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "echo \"no test specified\" && exit 0"
+    "test": "echo \"no test specified\" && exit 0",
+    "start": "ts-node ./src/index.ts",
+    "build": "webpack --mode production"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SystemLight/halfigs.git"
   },
   "keywords": [
-    "halfigs"
+    "halfigs",
+    "fs",
+    "file",
+    "file system",
+    "copy",
+    "directory",
+    "extra",
+    "mkdirp",
+    "mkdir",
+    "mkdirs",
+    "recursive",
+    "json",
+    "read",
+    "write",
+    "extra",
+    "delete",
+    "remove",
+    "touch",
+    "create",
+    "text",
+    "output",
+    "move",
+    "递归",
+    "复制",
+    "删除",
+    "文件夹",
+    "文件"
   ],
   "author": "SystemLight",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/SystemLight/halfigs/issues"
   },
-  "homepage": "https://github.com/SystemLight/halfigs#readme"
+  "homepage": "https://github.com/SystemLight/halfigs#readme",
+  "devDependencies": {
+    "@babel/core": "^7.8.4",
+    "@babel/preset-env": "^7.8.4",
+    "@types/node": "^13.7.1",
+    "babel-loader": "^8.0.6",
+    "clean-webpack-plugin": "^3.0.0",
+    "ts-loader": "^6.2.1",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.7.5",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11"
+  }
 }

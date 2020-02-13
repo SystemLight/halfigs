@@ -1,0 +1,32 @@
+{
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ],
+  "compilerOptions": {
+    "target": "es6",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "removeComments": true,
+    "strict": true,
+    "jsx": "react",
+    "allowJs": true,
+    "module": "commonjs",
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noEmit": false,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "declaration": true,
+    "outDir": "./dist/",
+    "sourceMap": false,
+    "typeRoots": [
+      "node_modules/@types"
+    ]
+  }
+}
