@@ -1,6 +1,6 @@
 {
   "name": "halfigs",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Halfigs allows you to delete, copy or create folders directly.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
