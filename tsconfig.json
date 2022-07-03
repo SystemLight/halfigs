@@ -1,32 +1,41 @@
 {
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "types/**/*",
+    "tests/**/*"
   ],
   "exclude": [
-    "node_modules",
+    "src/assets/**/*",
+    "src/styles/**/*",
+    "node_modules/**/*",
     "**/*.spec.ts"
   ],
   "compilerOptions": {
-    "target": "es6",
-    "moduleResolution": "node",
+    "target": "ESNext",
+    "module": "ESNext",
+    "allowJs": false,
+    "declaration": true,
+    "jsx": "preserve",
+    "outDir": "dist/",
+    "sourceMap": true,
+    "removeComments": false,
+    "noEmit": false,
+    "isolatedModules": false,
+    "strict": true,
+    "noImplicitAny": false,
+    "suppressImplicitAnyIndexErrors": true,
+    "moduleResolution": "Node",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    },
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "removeComments": true,
-    "strict": true,
-    "jsx": "react",
-    "allowJs": true,
-    "module": "commonjs",
-    "isolatedModules": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "noEmit": false,
     "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": true,
-    "declaration": true,
-    "outDir": "./dist/",
-    "sourceMap": false,
-    "typeRoots": [
-      "node_modules/@types"
-    ]
+    "resolveJsonModule": false,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true
   }
 }
