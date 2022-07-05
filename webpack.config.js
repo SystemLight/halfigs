@@ -6,40 +6,56 @@ const webpack = require('webpack')
 // webpack配置项：https://webpack.js.org/configuration/
 class Webpack5RecommendConfig {
   constructor(env, argv, options) {
-    let cwd = process.cwd()
-    let isTsProject = fs.existsSync(path.join(cwd, 'tsconfig.json'))
     this.mode = argv.mode || 'development'
     this.isProduction = this.mode === 'production'
+    this.isDevelopment = !this.isProduction
 
-    let _options = {
+    const cwd = process.cwd()
+    const isTsProject = fs.existsSync(path.join(cwd, 'tsconfig.json'))
+    const _options = {
       cwd: cwd, // 当前运行webpack所在位置
       srcPath: path.resolve(cwd, 'src'), // 源码目录文件位置
       distPath: path.resolve(cwd, 'dist'),// 输出文件位置
-      publicPath: '/', // 发布时URL访问路径
       packageJSON: require(path.join(cwd, 'package.json')), // package.json文件信息对象
+      staticFolderPath: path.join(cwd, 'public'), // 静态文件public目录
+
       isTsProject: isTsProject, // 是否为ts项目
       isEntryJSX: false, // 定义入口文件是否是JSX或者TSX
       scriptExt: isTsProject ? '.ts' : '.js', // 入口脚本扩展名称
       entryDefaultName: 'main', // 入口默认名,webpack默认入口为index.js，输出为main.js
       entryDefaultFileName: null, // // 入口文件默认名称
-      staticFolderPath: path.join(cwd, 'public'), // 静态文件public目录
-      title: 'Webpack App', // 主页标题
+
       enableProfile: false, // 是否统计并打印webpack打包详细信息
       enableProxy: false, // 是否启用代理配置
       enableThread: false, // 是否启用多线程
-      enableBabel: this.isProduction, // 默认生产环境进行babel编译，如果你使用React JSX那么需要永久启用并添加@babel/preset-react
       enableHash: true, // 是否启用HASH
-      emitCss: this.isProduction, // 是否分离css
+      enableSplitChunk: true, // 是否启用代码Chunk切分
+      enableBabel: this.isProduction, // 默认生产环境进行babel编译，如果你使用React JSX那么需要永久启用并添加@babel/preset-react
+      enableMinimize: this.isProduction, // 是否开启压缩代码
+      enableResolveCss: true, // 是否解析样式文件
+      enableResolveAsset: true, // 是否解析资源文件
+      enableBuildNodeLibrary: false, // 是否启用构建node库的环境配置
+
       emitHtml: true, // 是否弹出HTML文件
+      emitCss: this.isProduction, // 是否分离css
       emitPublic: true, // 是否复制public中静态文件
-      isSplitChunk: true, // 是否做代码Chunk切分
+
+      title: null, // 主页标题
+      publicPath: '/', // 发布时URL访问路径
       libraryName: false, // 是否作为库函数进行发布
       externals: [], // 需要做排除的库，目前支持react
-      skipCheckBabel: false // 跳过babel编译检查
+      skipCheckBabel: false // 强制跳过babel启用检查
     }
+
     if (Array.isArray(options)) {
       if (options.length === 1) {
         Object.assign(_options, options[0])
+      } else if (options.length === 2) {
+        if (this.isProduction) {
+          Object.assign(_options, options[0]) // 生产配置
+        } else {
+          Object.assign(_options, options[1]) // 开发配置
+        }
       } else if (options.length === 3) {
         if (this.isProduction) {
           Object.assign(_options, options[0], options[1]) // 生产配置
@@ -56,14 +72,12 @@ class Webpack5RecommendConfig {
     this.cwd = _options.cwd
     this.srcPath = _options.srcPath
     this.distPath = _options.distPath
-
-    this.publicPath = _options.publicPath
-
     this.packageJSON = _options.packageJSON
     this.dependencies = Object.keys({ // 项目依赖库数组，用于判定包含什么框架
       ...this.packageJSON['devDependencies'],
       ...this.packageJSON['dependencies']
     })
+    this.staticFolderPath = _options.staticFolderPath
 
     this.isTsProject = _options.isTsProject
     this.isEntryJSX = _options.isEntryJSX
@@ -73,14 +87,33 @@ class Webpack5RecommendConfig {
     }
     this.entryDefaultName = _options.entryDefaultName
     this.entryDefaultFileName = _options.entryDefaultFileName || `${this.entryDefaultName}${this.scriptExt}`
-    this.staticFolderPath = _options.staticFolderPath
 
-    this.enableHash = _options.enableHash
     this.enableProfile = _options.enableProfile
     this.enableProxy = _options.enableProxy
     this.enableThread = _options.enableThread
+    this.enableHash = _options.enableHash
+    this.enableSplitChunk = _options.enableSplitChunk
     this.enableBabel = _options.enableBabel
+    this.enableMinimize = _options.enableMinimize
+    this.enableResolveCss = _options.enableResolveCss
+    this.enableResolveAsset = _options.enableResolveAsset
+    this.enableBuildNodeLibrary = _options.enableBuildNodeLibrary
+
+    this.emitCss = _options.emitCss
+    this.emitHtml = _options.emitHtml
+    this.emitPublic = _options.emitPublic
+
+    this.title = _options.title || this.packageJSON['name'] || 'Webpack App'
+    this.publicPath = _options.publicPath
+    this.libraryName = _options.libraryName
+    if (this.libraryName === true) {
+      this.libraryName = this.camelCase(this.packageJSON['name']) || 'library'
+    }
+    this.externals = _options.externals
     this.skipCheckBabel = _options.skipCheckBabel
+
+    this._config = {}
+
     if (this.isProduction) {
       this.checkEnableBabel()
     }
@@ -90,49 +123,62 @@ class Webpack5RecommendConfig {
     if (this.enableBabel) {
       this.checkBabelCompileReact()
     }
-
-    this.title = _options.title
-
-    this.emitCss = _options.emitCss
-    this.emitHtml = _options.emitHtml
-    this.emitPublic = _options.emitPublic
-    this.isSplitChunk = _options.isSplitChunk
-
-    this.externals = _options.externals
-    this.libraryName = _options.libraryName
-    if (this.libraryName === true) {
-      this.libraryName = this.camelCase(this.packageJSON['name']) || 'library'
-    }
-
-    this._config = {}
   }
 
-  static buildLibraryOptions(libraryName) {
-    return [
+  static buildLibraryOptions(libraryName, buildCallback) {
+    let options = [
       {
         emitCss: false,
         emitHtml: false,
         libraryName: libraryName || true,
-        isSplitChunk: false,
+        enableSplitChunk: false,
         enableHash: false
       },
       {emitPublic: false},
       null
     ]
-  }
-
-  static buildReactLibraryOptions(componentName) {
-    let options = Webpack5RecommendConfig.buildLibraryOptions(componentName)
-    options[0].externals = ['react']
+    if (buildCallback) {
+      buildCallback(options)
+    }
     return options
   }
 
-  static newLibrary(env, argv, libraryName) {
-    return new Webpack5RecommendConfig(env, argv, Webpack5RecommendConfig.buildLibraryOptions(libraryName))
+  static buildNodeOptions(buildCallback) {
+    return Webpack5RecommendConfig.buildLibraryOptions('library', (options) => {
+      options[0].enableResolveCss = false
+      options[0].enableResolveAsset = false
+      options[0].emitPublic = false
+      options[0].enableBuildNodeLibrary = true
+      buildCallback && buildCallback(options)
+    })
   }
 
-  static newReactLibrary(env, argv, componentName) {
-    return new Webpack5RecommendConfig(env, argv, Webpack5RecommendConfig.buildReactLibraryOptions(componentName))
+  static buildReactLibraryOptions(libraryName, buildCallback) {
+    return Webpack5RecommendConfig.buildLibraryOptions(libraryName, (options) => {
+      options[0].externals = ['react']
+      buildCallback && buildCallback(options)
+    })
+  }
+
+  static newLibrary(env, argv, libraryName, buildCallback) {
+    return new Webpack5RecommendConfig(
+      env, argv,
+      Webpack5RecommendConfig.buildLibraryOptions(libraryName, buildCallback)
+    )
+  }
+
+  static newNodeLibrary(env, argv, buildCallback) {
+    return new Webpack5RecommendConfig(
+      env, argv,
+      Webpack5RecommendConfig.buildNodeOptions(buildCallback)
+    )
+  }
+
+  static newReactLibrary(env, argv, libraryName, buildCallback) {
+    return new Webpack5RecommendConfig(
+      env, argv,
+      Webpack5RecommendConfig.buildReactLibraryOptions(libraryName, buildCallback)
+    )
   }
 
   build(buildCallback) {
@@ -146,6 +192,10 @@ class Webpack5RecommendConfig {
     this.buildRules()
     this.buildPlugins()
 
+    if (this.enableBuildNodeLibrary) {
+      this.buildNodeLibrary()
+    }
+
     if (buildCallback) {
       buildCallback.call(this, this._config)
     }
@@ -155,9 +205,9 @@ class Webpack5RecommendConfig {
   buildBasic() {
     this._config.mode = this.mode
     this._config.stats = 'errors-only'
-    this._config.devtool = this.isProduction ? false : 'eval-source-map'
+    this._config.devtool = this.isDevelopment ? 'eval-source-map' : false
     this._config.context = this.cwd
-    if (!this.isProduction) {
+    if (this.isDevelopment) {
       this._config.target = 'web' // 默认值：browserslist
     }
 
@@ -240,7 +290,7 @@ class Webpack5RecommendConfig {
     this._config.resolve = {
       extensions: ['.js'],
       alias: {
-        '@': path.join(this.cwd, 'src')
+        '@': this.srcPath
       }
     }
 
@@ -264,7 +314,7 @@ class Webpack5RecommendConfig {
 
   buildDevServer() {
     // https://webpack.js.org/configuration/dev-server/
-    let port = 8080
+    const port = 8080
     this._config.devServer = {
       allowedHosts: 'all',
       historyApiFallback: false,
@@ -295,7 +345,7 @@ class Webpack5RecommendConfig {
     }
 
     this._config.optimization = {}
-    if (this.isSplitChunk) {
+    if (this.enableSplitChunk) {
       /**
        * https://webpack.js.org/plugins/split-chunks-plugin/#configuration
        *
@@ -320,12 +370,15 @@ class Webpack5RecommendConfig {
       }
     }
 
-    Object.assign(this._config.optimization, {
-      minimize: this.isProduction,
-      minimizer: [
-        new (require('terser-webpack-plugin'))() //
-      ]
-    })
+    if (this.enableMinimize) {
+      Object.assign(this._config.optimization, {
+        minimize: this.enableMinimize,
+        minimizer: [
+          new (require('terser-webpack-plugin'))() //
+        ]
+      })
+    }
+
     return this
   }
 
@@ -345,17 +398,19 @@ class Webpack5RecommendConfig {
       use: jsUse
     })
 
-    /**
-     * 添加jsx解析
-     */
-    let jsxUse = this.enableBabel ? ['babel-loader'] : []
-    if (this.enableThread) {
-      jsxUse.unshift('thread-loader')
+    if (this.isInclude('react')) {
+      /**
+       * 添加jsx解析
+       */
+      let jsxUse = this.enableBabel ? ['babel-loader'] : []
+      if (this.enableThread) {
+        jsxUse.unshift('thread-loader')
+      }
+      this._config.module.rules.push({
+        test: /\.jsx$/,
+        use: jsxUse
+      })
     }
-    this._config.module.rules.push({
-      test: /\.jsx$/,
-      use: jsxUse
-    })
 
     if (this.isTsProject) {
       /**
@@ -388,72 +443,76 @@ class Webpack5RecommendConfig {
       })
     }
 
-    /**
-     * 添加css解析
-     */
-    this._config.module.rules.push({
-      test: /\.css$/,
-      use: this.getCssLoader()
-    })
-
-    /**
-     * 添加sass解析
-     */
-    if (this.isInclude('sass')) {
+    if (this.enableResolveCss) {
+      /**
+       * 添加css解析
+       */
       this._config.module.rules.push({
-        test: /\.s[ca]ss$/,
-        use: this.getCssLoader('sass')
+        test: /\.css$/,
+        use: this.getCssLoader()
       })
+
+      /**
+       * 添加sass解析
+       */
+      if (this.isInclude('sass')) {
+        this._config.module.rules.push({
+          test: /\.s[ca]ss$/,
+          use: this.getCssLoader('sass')
+        })
+      }
+
+      /**
+       * 添加sass解析
+       */
+      if (this.isInclude('less')) {
+        this._config.module.rules.push({
+          test: /\.less$/,
+          use: this.getCssLoader('less')
+        })
+      }
     }
 
-    /**
-     * 添加sass解析
-     */
-    if (this.isInclude('less')) {
+    if (this.enableResolveAsset) {
+      /**
+       * https://webpack.js.org/guides/asset-modules/
+       *
+       * 添加图片资源解析
+       */
       this._config.module.rules.push({
-        test: /\.less$/,
-        use: this.getCssLoader('less')
+        test: /\.(png|jpe?g|gif|svg)$/,
+        type: 'asset',
+        generator: {
+          filename: this.enableHash ? 'images/[name].[hash:8][ext]' : 'images/[name][ext]'
+        }
+      })
+
+      /**
+       * https://webpack.js.org/guides/asset-modules/
+       *
+       * 添加媒体资源解析
+       */
+      this._config.module.rules.push({
+        test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
+        type: 'asset',
+        generator: {
+          filename: this.enableHash ? 'media/[name].[hash:8][ext]' : 'images/[name][ext]'
+        }
+      })
+
+      /**
+       * https://webpack.js.org/guides/asset-modules/
+       *
+       * 添加字体资源解析
+       */
+      this._config.module.rules.push({
+        test: /\.(woff|woff2|eot|ttf|otf)$/,
+        type: 'asset',
+        generator: {
+          filename: this.enableHash ? 'font/[name].[hash:8][ext]' : 'images/[name][ext]'
+        }
       })
     }
-
-    /**
-     * https://webpack.js.org/guides/asset-modules/
-     *
-     * 添加图片资源解析
-     */
-    this._config.module.rules.push({
-      test: /\.(png|jpe?g|gif|svg)$/,
-      type: 'asset',
-      generator: {
-        filename: this.enableHash ? 'images/[name].[hash:8][ext]' : 'images/[name][ext]'
-      }
-    })
-
-    /**
-     * https://webpack.js.org/guides/asset-modules/
-     *
-     * 添加媒体资源解析
-     */
-    this._config.module.rules.push({
-      test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
-      type: 'asset',
-      generator: {
-        filename: this.enableHash ? 'media/[name].[hash:8][ext]' : 'images/[name][ext]'
-      }
-    })
-
-    /**
-     * https://webpack.js.org/guides/asset-modules/
-     *
-     * 添加字体资源解析
-     */
-    this._config.module.rules.push({
-      test: /\.(woff|woff2|eot|ttf|otf)$/,
-      type: 'asset',
-      generator: {
-        filename: this.enableHash ? 'font/[name].[hash:8][ext]' : 'images/[name][ext]'
-      }
-    })
 
     return this
   }
@@ -461,7 +520,7 @@ class Webpack5RecommendConfig {
   buildPlugins() {
     this._config.plugins = []
 
-    if (this.isProduction) {
+    if (this.emitCss) {
       /**
        * 将 CSS 提取到单独的文件中
        * https://webpack.js.org/plugins/mini-css-extract-plugin/
@@ -544,8 +603,8 @@ class Webpack5RecommendConfig {
      * 在监视模式下忽略指定的文件
      * https://webpack.js.org/plugins/watch-ignore-plugin/
      */
-    let ignorePaths = []
     if (this.isTsProject) {
+      let ignorePaths = []
       // https://github.com/TypeStrong/ts-loader#usage-with-webpack-watch
       ignorePaths.push(/\.js$/, /\.d\.ts$/)
       this._config.plugins.push(
@@ -695,9 +754,6 @@ class Webpack5RecommendConfig {
 }
 
 module.exports = (env, argv) => Webpack5RecommendConfig
-  .newLibrary(env, argv)
-  .build(function (config) {
-    config.devtool = false
-    this.buildNodeLibrary()
-  })
+  .newNodeLibrary(env, argv)
+  .build((config) => config.devtool = false)
   .toConfig()
